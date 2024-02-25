@@ -1,0 +1,4 @@
+app_version: 1.0.0 
+node_app_location: /home/sami/test-node-app 
+username: sami
+user_home_dir: /home/{{username}}
