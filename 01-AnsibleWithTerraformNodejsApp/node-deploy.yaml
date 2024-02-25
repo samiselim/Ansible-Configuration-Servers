@@ -1,0 +1,49 @@
+  - name: Installing Node using npm
+    become: yes
+    hosts: 13.38.91.172 35.180.123.214
+    tasks:
+      - name: Update apt repo
+        apt:
+          update_cache: yes
+          force_apt_get: yes
+          cache_valid_time: 3600
+      - name: Installing nodejs and npm 
+        apt:
+           pkg:
+            - nodejs
+            - npm
+  
+  - name: Create new user for linux
+    hosts: 13.38.91.172 35.180.123.214
+    become: yes
+    tasks:
+    - name: Create user
+      user:
+        name: sami
+        comment: "sami admin user"
+        group: admin
+        shell: /bin/bash
+
+  - name: Deploying Node Application
+    hosts: 13.38.91.172 35.180.123.214
+    become: yes
+    become_user: sami
+    tasks:
+      - name: Unpack the nodejs file
+        unarchive:
+          src:  /home/sami/test-node-app/nodejs-app-1.0.0.tgz
+          dest: /home/sami
+      - name: Installing dependencies
+        npm:
+          path: /home/sami/package
+      - name: Start the Application
+        command:
+          chdir: /home/sami/package/app
+          cmd: node server 
+        async: 1000
+        poll: 0
+      - name: Ensure the app is running or not 
+        shell: ps aux | grep node 
+        register: app_status
+      - debug: msg={{app_status.stdout_lines}}
+ 
